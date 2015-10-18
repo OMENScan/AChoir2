@@ -3,7 +3,11 @@ Windows Live Artifacts Acquisition Scripting Framework
 
 This is a fork of the original AChoir - Converted to MSVC and Win HTTP.  
 The original AChoir (Mingw and libcurl) will be left intact for those that
-prefer MingW.  However, all future development will be don to this fork.
+prefer MingW.  However, all future development will be done to this fork.
+Eventually this fork will become the primary AChoir and The MingW/libcurl 
+version will become AChoir-Legacy.  But that will not happen until this new 
+version is stabilized.
+
 
 * AChoir v0.08 - Released as Open Source at my Live Acquisition presentation 
   at BSides Las Vegas, August 2015
@@ -29,6 +33,10 @@ prefer MingW.  However, all future development will be don to this fork.
 * AChoir v0.28 - Add /MAP:  /USR:  and  /PWD:  command lines
   * and MAP:  USR:  and  PWD:  INI file Actions
   * to enable Mapping for Remote Acquisition
+* AChoir v0.29 - Add ADM:Check and ADM:Force to check OR enforce that AChoir be run from an ADMIN ID
+  - Converted to MSVC 
+  - Also replaced libCurl with MS WinHTTP APIs
+
 
 # Brief Description:
 Every Incident Responder eventually comes to the conclusion that they need to 
