@@ -37,6 +37,7 @@
 /*                enforce that AChoir be run from an ADMIN ID   */
 /*              - Converted to MSVC - Also replaced libCurl     */
 /*                with MS WinHTTP APIs                          */
+/* AChoir v0.30 - Improve CPY: - Prevent Overwriting Files      */
 /*                                                              */
 /*  rc=0 - All Good                                             */
 /*  rc=1 - Bad Input                                            */
@@ -77,7 +78,7 @@
 #define MaxArray 100
 #define BUFSIZE 4096
 
-char Version[10] = "v0.29\0";
+char Version[10] = "v0.30\0";
 char RunMode[10] = "Run\0";
 int  iRanMode = 0;
 int  iRunMode = 0;
@@ -2481,29 +2482,29 @@ int ListDir(char *DirName, char *LisType)
 			/****************************************************************/
 			if (ffblk.attrib & _A_SUBDIR);
 			else
-			{
-				sprintf(FullFName, "%s%s\0", RootDir, inName);
+      {
+        sprintf(FullFName, "%s%s\0", RootDir, inName);
 
-				if (iLisType == 1)
-				{
-					FileMD5(FullFName);
-					fprintf(MD5Hndl, "File: %s - MD5: %s\n", FullFName, MD5Out);
-				}
-				else
-				if (iLisType == 2)
-					fprintf(MD5Hndl, "%s\n", FullFName);
-				else
-				if (iLisType == 3)
-					SetFileAttributes(FullFName, 0x1);
+        if (iLisType == 1)
+        {
+          FileMD5(FullFName);
+          fprintf(MD5Hndl, "File: %s - MD5: %s\n", FullFName, MD5Out);
+        }
+        else
+          if (iLisType == 2)
+            fprintf(MD5Hndl, "%s\n", FullFName);
+          else
+            if (iLisType == 3)
+              SetFileAttributes(FullFName, 0x1);
       }
 
-		} while (_findnext(DirDone, &ffblk) == 0);
+    } while (_findnext(DirDone, &ffblk) == 0);
 
-		_findclose(DirDone);
+    _findclose(DirDone);
 
-	}
+  }
 
-	return 0;
+  return 0;
 }
 
 
@@ -2513,33 +2514,33 @@ int ListDir(char *DirName, char *LisType)
 /****************************************************************/
 int PreIndex()
 {
-	iHtmMode = 0;
-	sprintf(HtmFile, "%s\\Index.htm\0", BACQDir);
+  iHtmMode = 0;
+  sprintf(HtmFile, "%s\\Index.htm\0", BACQDir);
 
-	HtmHndl = fopen(HtmFile, "w");
-	if (HtmHndl != NULL)
-	{
-		iHtmMode = 1;
+  HtmHndl = fopen(HtmFile, "w");
+  if (HtmHndl != NULL)
+  {
+    iHtmMode = 1;
 
-		fprintf(HtmHndl, "<html><head><title>AChoir Artifacts</title></head>\n");
-		fprintf(HtmHndl, "<body>\n");
-		fprintf(HtmHndl, "<h2>Welcome to AChoir %s</h2>\n\n", Version);
-		fprintf(HtmHndl, "<p>\n");
-		fprintf(HtmHndl, "Below is an Index of the Artifacts gathered for Acquisition: <b>%s</b>\n\n", ACQName);
-		fprintf(HtmHndl, "</p>\n\n");
-		fprintf(HtmHndl, "<table width=900>\n");
-		fprintf(HtmHndl, "<tr><td align=left>\n");
-		fprintf(HtmHndl, "<button onclick=\"window.history.back()\">&lt;&lt;</button>\n");
-		fprintf(HtmHndl, "</td><td align=center>\n");
-		fprintf(HtmHndl, "<a href=file:./ target=AFrame> Root </a>\n");
-	}
-	else
-	{
-		fprintf(HtmHndl, "Err: Could not Create Artifact Index: %s\n", HtmFile);
-		printf("Err: Could not Create Artifact Index: %s\n", HtmFile);
-	}
+    fprintf(HtmHndl, "<html><head><title>AChoir Artifacts</title></head>\n");
+    fprintf(HtmHndl, "<body>\n");
+    fprintf(HtmHndl, "<h2>Welcome to AChoir %s</h2>\n\n", Version);
+    fprintf(HtmHndl, "<p>\n");
+    fprintf(HtmHndl, "Below is an Index of the Artifacts gathered for Acquisition: <b>%s</b>\n\n", ACQName);
+    fprintf(HtmHndl, "</p>\n\n");
+    fprintf(HtmHndl, "<table width=900>\n");
+    fprintf(HtmHndl, "<tr><td align=left>\n");
+    fprintf(HtmHndl, "<button onclick=\"window.history.back()\">&lt;&lt;</button>\n");
+    fprintf(HtmHndl, "</td><td align=center>\n");
+    fprintf(HtmHndl, "<a href=file:./ target=AFrame> Root </a>\n");
+  }
+  else
+  {
+    fprintf(HtmHndl, "Err: Could not Create Artifact Index: %s\n", HtmFile);
+    printf("Err: Could not Create Artifact Index: %s\n", HtmFile);
+  }
 
-	return 0;
+  return 0;
 }
 
 
@@ -2549,15 +2550,43 @@ int PreIndex()
 /****************************************************************/
 int binCopy(char *FrmFile, char *TooFile, int binLog)
 {
-	size_t inSize, outSize;
-	unsigned char Cpybuf[8192];
-	int NBlox = 0;
+  size_t inSize, outSize;
+  unsigned char Cpybuf[8192];
+  int NBlox = 0;
 
-	FILE* FrmHndl;
-	FILE* TooHndl;
-	HANDLE HndlToo;
+  char tmpTooFile[4096];
+  int iFileCount = 0;
 
-	//FILETIME ftCreate, ftAccess, ftWrite;
+  FILE* FrmHndl;
+  FILE* TooHndl;
+  HANDLE HndlToo;
+
+  //FILETIME ftCreate, ftAccess, ftWrite;
+  /****************************************************************/
+  /* Make Sure the File is Not There - Don't Overwrite!           */
+  /****************************************************************/
+  memset(tmpTooFile, 0, 4096);
+  snprintf(tmpTooFile, 4090, "%s", TooFile);
+
+  iFileCount = 0;
+
+  if (access(tmpTooFile, 0) == 0)
+  {
+    do
+    {
+      memset(tmpTooFile, 0, 4096);
+      iFileCount++;
+
+      snprintf(tmpTooFile, 4090, "%s(%d)", TooFile, iFileCount);
+    } while (access(tmpTooFile, 0) == 0);
+  }
+
+  if ((iFileCount > 0) && (binLog == 1))
+  {
+    fprintf(LogHndl, "Inf: Destination File Already Exists. \n     Renamed To: %s\n", tmpTooFile);
+    printf("Inf: Destination File Already Exists. \n     Renamed To: %s\n", tmpTooFile);
+  }
+
 
 	if (access(FrmFile, 0) != 0)
 	{
@@ -2593,7 +2622,7 @@ int binCopy(char *FrmFile, char *TooFile, int binLog)
 		/* Copy File Code                                               */
 		/****************************************************************/
 		FrmHndl = fopen(FrmFile, "rb");
-		TooHndl = fopen(TooFile, "wb");
+		TooHndl = fopen(tmpTooFile, "wb");
 
 		if ((FrmHndl != NULL) && (TooHndl != NULL))
 		{
@@ -2636,7 +2665,7 @@ int binCopy(char *FrmFile, char *TooFile, int binLog)
 			Time_tToFileTime(Frmstat.st_ctime, 3);
 
 
-			HndlToo = CreateFile(TooFile, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+			HndlToo = CreateFile(tmpTooFile, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			//SetFileTime(TooHndl, &ftCreate, &ftAccess, &ftWrite);
@@ -2654,7 +2683,7 @@ int binCopy(char *FrmFile, char *TooFile, int binLog)
 
       printf("Inf: Source File MD5.....: %s\n", MD5Out);
 
-			FileMD5(TooFile);
+			FileMD5(tmpTooFile);
       if (binLog == 1)
         fprintf(LogHndl, "Inf: Destination File MD5: %s\n", MD5Out);
 
