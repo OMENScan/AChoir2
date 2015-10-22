@@ -38,6 +38,7 @@
 /*              - Converted to MSVC - Also replaced libCurl     */
 /*                with MS WinHTTP APIs                          */
 /* AChoir v0.30 - Improve CPY: - Prevent Overwriting Files      */
+/* AChoir v0.31 - Start and End Time Stamps and &Tim variable   */
 /*                                                              */
 /*  rc=0 - All Good                                             */
 /*  rc=1 - Bad Input                                            */
@@ -78,7 +79,7 @@
 #define MaxArray 100
 #define BUFSIZE 4096
 
-char Version[10] = "v0.30\0";
+char Version[10] = "v0.31\0";
 char RunMode[10] = "Run\0";
 int  iRanMode = 0;
 int  iRunMode = 0;
@@ -111,6 +112,7 @@ long consInput(char *consString, int conLog);
 long mapsDrive(char *mapString, int mapLog);
 int PreIndex();
 BOOL IsUserAdmin(VOID);
+void showTime(char *showText);
 
 
 FILE* LogHndl;
@@ -162,12 +164,14 @@ char cpyChar;
 char FilArray[MaxArray][MaxArray];
 
 int  iMonth, iDay, iYear, iHour, iMin, iSec, iYYYY;
-unsigned long LCurrTime;
 
 time_t timeval;
 struct tm *lclTime;
-char CDate[15] = "01/01/0001\0";
-char CTime[15] = "01:01:00\0";
+char FullDateTime[25] = "01/01/0001 - 01:01:01\0";
+
+//unsigned long LCurrTime;
+//char CDate[15] = "01/01/0001\0";
+//char CTime[15] = "01:01:00\0";
 
 char MD5In1[256] = "\0";
 char MD5In2[256] = "\0";
@@ -253,7 +257,7 @@ int main(int argc, char *argv[])
   BOOL bResults = FALSE;
   HINTERNET hSession = NULL, hConnect = NULL, hRequest = NULL;
     
-  LCurrTime = time(NULL);
+  //LCurrTime = time(NULL);
 	char *ForSlash;
 
 	char cName[MAX_COMPUTERNAME_LENGTH + 1];
@@ -469,6 +473,8 @@ int main(int argc, char *argv[])
 	printf("Inf: AChoir ver: %s, Mode: %s\n", Version, RunMode);
 	fprintf(LogHndl, "Inf: AChoir ver: %s, Mode: %s\n", Version, RunMode);
 
+  showTime("Start Acquisition");
+
   /****************************************************************/
   /* Check If We are an Admin                                     */
   /****************************************************************/
@@ -647,7 +653,18 @@ int main(int argc, char *argv[])
 							oPtr = strlen(Inrec);
 							iPtr += 3;
 						}
-						else
+            else
+            if (strnicmp(o32VarRec + iPtr, "&Tim", 4) == 0)
+            {
+              // Full Date and Time - mm/dd/yyyy - hh:mm:ss
+              memset(FullDateTime, 0, 25);
+              showTime("&Tim");
+                
+              sprintf(Inrec + oPtr, "%s", FullDateTime);
+              oPtr = strlen(Inrec);
+              iPtr += 3;
+            }
+            else
 						if (strnicmp(o32VarRec + iPtr, "&Inp", 4) == 0)
 						{
 							sprintf(Inrec + oPtr, "%s", Inprec);
@@ -1710,7 +1727,13 @@ int main(int argc, char *argv[])
 	}
 
 
-	/****************************************************************/
+  /****************************************************************/
+  /* All Done with Acquisition                    `               */
+  /****************************************************************/
+  showTime("Acquisition Completed");
+
+
+  /****************************************************************/
 	/* Make a Copy of the Logfile in the ACQDirectory               */
 	/****************************************************************/
   if (access(BACQDir, 0) == 0)
@@ -2937,3 +2960,36 @@ BOOL IsUserAdmin(VOID)
 	return(b);
 
 }
+
+
+
+void showTime(char *showText)
+{
+  /****************************************************************/
+  /* Show the TIME on console and in log                          */
+  /****************************************************************/
+  time_t showtimet;
+  struct tm *showlocal;
+
+  time(&showtimet);
+  showlocal = localtime(&showtimet);
+
+  if (strnicmp(showText, "&Tim", 4) == 0)
+  {
+    sprintf(FullDateTime, "%02d/%02d/%04d - %02d:%02d:%02d\n",
+      showlocal->tm_mon + 1, showlocal->tm_mday, (showlocal->tm_year + 1900),
+      showlocal->tm_hour, showlocal->tm_min, showlocal->tm_sec);
+  }
+  else
+  {
+    printf("Inf: %s: %02d/%02d/%04d - %02d:%02d:%02d\n", showText,
+      showlocal->tm_mon + 1, showlocal->tm_mday, (showlocal->tm_year + 1900),
+      showlocal->tm_hour, showlocal->tm_min, showlocal->tm_sec);
+
+    fprintf(LogHndl, "Inf: %s: %02d/%02d/%04d - %02d:%02d:%02d\n", showText,
+      showlocal->tm_mon + 1, showlocal->tm_mday, (showlocal->tm_year + 1900),
+      showlocal->tm_hour, showlocal->tm_min, showlocal->tm_sec);
+  }
+}
+
+

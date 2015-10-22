@@ -188,6 +188,7 @@ Objects:
 ========
 &Dir     The Current Directory Object
 &Inp     Input from console (INP: Action) 
+&Tim     The Local Time Set on the computer - Please Note: It may not be accurate.
 &Fil     The Current File Object
 &Acq     The Current Acquisition Directory
 &For     An array of File objects set by the FOR: action
