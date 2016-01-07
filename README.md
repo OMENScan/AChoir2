@@ -1,9 +1,9 @@
-# AChoir2 and AChoir are now merged
+# AChoir
 Windows Live Artifacts Acquisition Scripting Framework
 
-This was a fork of the original AChoir - Converted to MSVC and Win HTTP.  
-However, AChoir and AChoir2 are now the same thing, and the original 
-AChoir (MingW/libcurl) has been movedto AChoir-Legacy.
+AChoir has now been Converted to MSVC and Win HTTP. The original AChoir 
+(Mingw and libcurl) will be left intact under AChoir-Legacy for those that 
+prefer MingW.  However, all future development will be done to this fork.
 
 
 * AChoir v0.08 - Released as Open Source at my Live Acquisition presentation 
