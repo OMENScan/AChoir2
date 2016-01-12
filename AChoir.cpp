@@ -43,9 +43,12 @@
 /* AChoir v0.33 - Turn On/Off USB Write Protect                 */
 /* AChoir v0.34 - Internal Code Cleanup                         */
 /* AChoir v0.35 - Add DRV: Action to Set &Drv                   */
+<<<<<<< HEAD
 /* AChoir v0.36 - Add Variables 0-9 (VR0: - VR9:) (&VR0 - &VR9) */
 /*              - Fix wierd Win7 "Application Data" Path        */ 
 /*                 Recursion Anomoly                            */
+=======
+>>>>>>> origin/master
 /*                                                              */
 /*  rc=0 - All Good                                             */
 /*  rc=1 - Bad Input                                            */
@@ -86,7 +89,11 @@
 #define MaxArray 100
 #define BUFSIZE 4096
 
+<<<<<<< HEAD
 char Version[10] = "v0.36\0";
+=======
+char Version[10] = "v0.35\0";
+>>>>>>> origin/master
 char RunMode[10] = "Run\0";
 int  iRanMode = 0;
 int  iRunMode = 0;
@@ -170,8 +177,12 @@ char LastRec[2048];
 char ThisRec[2048];
 char cpyChar;
 
+<<<<<<< HEAD
 int  iVar;
 char VarArray[2560]; // Ten 256 Byte Variables (&Var0 - &Var9)
+=======
+char FilArray[MaxArray][MaxArray];
+>>>>>>> origin/master
 
 int  iMonth, iDay, iYear, iHour, iMin, iSec, iYYYY;
 
@@ -303,8 +314,11 @@ int main(int argc, char *argv[])
   memset(inUser, 0, 255);
   memset(inPass, 0, 255);
 
+<<<<<<< HEAD
   memset(VarArray, 0, 2560);
 
+=======
+>>>>>>> origin/master
   strncpy(inFnam, "AChoir.ACQ\0", 11);
 
 
@@ -769,6 +783,7 @@ int main(int argc, char *argv[])
               iPtr += 3;
             }
             else
+<<<<<<< HEAD
             if (strnicmp(o32VarRec + iPtr, "&VR", 3) == 0)
             {
               switch (o32VarRec[iPtr+3])
@@ -838,6 +853,8 @@ int main(int argc, char *argv[])
               }
             }
             else
+=======
+>>>>>>> origin/master
             {
               Inrec[oPtr] = o32VarRec[iPtr];
               oPtr++;
@@ -976,6 +993,7 @@ int main(int argc, char *argv[])
 
           }
           else
+<<<<<<< HEAD
           if ((strnicmp(Inrec, "VR", 2) == 0) && (Inrec[3] == ':'))
           {
             strtok(Inrec, "\n");
@@ -1042,6 +1060,8 @@ int main(int argc, char *argv[])
             }
           }
           else
+=======
+>>>>>>> origin/master
           if (strnicmp(Inrec, "Drv:", 4) == 0)
           {
             strtok(Inrec, "\n");
@@ -2530,7 +2550,11 @@ int ListDir(char *DirName, char *LisType)
   char *Slash;
 
   int iLisType;
+<<<<<<< HEAD
   size_t iMaxSize;
+=======
+
+>>>>>>> origin/master
 
 
   /****************************************************************/
@@ -2550,6 +2574,10 @@ int ListDir(char *DirName, char *LisType)
 
   /****************************************************************/
   /* Loop throught the directory looking for those files.         */
+<<<<<<< HEAD
+=======
+  /*   Count up the tracks, mixes, and total bytecount            */
+>>>>>>> origin/master
   /****************************************************************/
   strcpy(RootDir, DirName);
 
@@ -2597,6 +2625,7 @@ int ListDir(char *DirName, char *LisType)
       memset(inName, 0, FILENAME_MAX);
       strcpy(inName, ffblk.name);
 
+<<<<<<< HEAD
       iMaxSize = strlen(RootDir);
       iMaxSize += strlen(inName);
       if (iMaxSize >= FILENAME_MAX)
@@ -2607,6 +2636,8 @@ int ListDir(char *DirName, char *LisType)
         return 0;
       }
       
+=======
+>>>>>>> origin/master
 
       /****************************************************************/
       /* SubDirectory Search                                          */
