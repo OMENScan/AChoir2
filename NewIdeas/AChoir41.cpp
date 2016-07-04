@@ -239,9 +239,6 @@ DWORD nValues;
 PCWSTR ORlpSubKey = L"Microsoft\\Windows\\CurrentVersion\\Run\0";
 PCWSTR ORlp6432 = L"Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run\0";
 
-LPCTSTR DLL32Path = TEXT(".\\32Bit\\");
-LPCTSTR DLL64Path = TEXT(".\\64Bit\\");
-
 DWORD ulOptions = 0;
 REGSAM samWOW64 = KEY_READ | KEY_WOW64_64KEY;
 REGSAM samWOW32 = KEY_READ | KEY_WOW64_32KEY;
@@ -364,15 +361,6 @@ int main(int argc, char *argv[])
   TempVar = getenv("temp");
   ProgVar = getenv("programfiles");
 
-
-  /****************************************************************/
-  /* Setup The 64Bit or 32Bit DLL Loading Directory               */
-  /****************************************************************/
-  if (strnicmp(Procesr, "AMD64", 5) == 0)
-    SetDllDirectory(DLL64Path);
-  else
-    SetDllDirectory(DLL32Path);
-  
 
   /****************************************************************/
   /* Build the &ACQ Incident Number                               */
