@@ -130,6 +130,32 @@ Achoir is a Framework/Scripting Tool to standardize and simplify that process.
 * ............ - When BaseDir changes, change Windows CWD too
 * ............ - New Redaction Routine for PWD: EXE: CMD:
 * AChoir v1.6  - Add EXA: and EXB:  (Asyn & Background EXe)
+* AChoir v1.7  - Fix DSK: &DSK bug for Remote Collections 
+* ............ - File not being properly closed causes loop.  
+* AChoir v1.8  - Recognize Compressed Files, and allow them to 
+* ............ -  be copied by the OS API to DeCompress them
+* ............ -  The Flag for this behaviour is:  
+* ............ -  SET:NCP=OSCOPY or SET:NCP=RAWONLY
+* ............ - Also Added built in Support for WOW64 file 
+* ............ -  redirection of X86 binCopy of SYSTEM32 
+* ............ -  (sub) directories. This was needed for 
+* ............ -  switching from rawcopy to bincopy - plus its 
+* ............ -  a good general feature anyway.
+* AChoir v1.9  - Recognize Compressed Size
+* AChoir v1.9a - More Comressed Files Support
+* AChoir v2.0  - Add LZNT1 Decompress Routine
+* ............ - Flag behaviors have changed:  
+* ............ -  SET:NCP=NODCMP - NoDecompression 
+* ............ -  SET:NCP=DECOMP/RAWONLY - LZNT1 Decompress 
+* ............ -  SET:NCP=OSCOPY - Do OS/API copy on Decomp Err
+* AChoir v2.1  - Add App Compat Manifest - For 8.1 and above
+* ............ -  comaptibility  
+* ............ - Add new Conditional Logic on Windows Version  
+* ............ - VER:WinXP, WinXP64, Vista, Win7, Win8, Win8.1 
+* ............ -  Win10 
+* ............ -  Win2000, Win2003, Win2008, Win2008R2,  
+* ............ -  Win2012, Win2012R2, Win2016
+* AChoir v2.2  - Add Ver: Client, and Server checks
 
 
 # Quick Start (tl;dr):
