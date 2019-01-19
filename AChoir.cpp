@@ -160,6 +160,8 @@
 /*                 without a Long FN in $MFT record.            */
 /* AChoir v2.5  - Partial Back out of LZNT1 mod that negatively */
 /*                 impacted $MFT Resident File extraction       */
+/* AChoir v2.6  - Fix Duplicate File copy due to multiple MFT   */
+/*                 Records for a file (Hard Links)              */
 /*                                                              */
 /*  rc=0 - All Good                                             */
 /*  rc=1 - Bad Input                                            */
@@ -255,7 +257,7 @@
 #define MaxArray 100
 #define BUFSIZE 4096
 
-char Version[10] = "v2.5\0";
+char Version[10] = "v2.6\0";
 char RunMode[10] = "Run\0";
 int  iRanMode = 0;
 int  iRunMode = 0;
@@ -6428,7 +6430,7 @@ int rawCopy(char *FrmFile, char *TooFile, int binLog)
 
 
     SpinLock = 0;
-    while ((dbMrc = sqlite3_exec(dbMFTHndl, "CREATE TABLE FileNames (RecID INTEGER PRIMARY KEY AUTOINCREMENT, MFTRecID INTEGER, FullFileName)", 0, 0, &errmsg)) != SQLITE_OK)
+    while ((dbMrc = sqlite3_exec(dbMFTHndl, "CREATE TABLE FileNames (RecID INTEGER PRIMARY KEY AUTOINCREMENT, MFTFilesRecID INTEGER, MFTRecID INTEGER, FullFileName)", 0, 0, &errmsg)) != SQLITE_OK)
     {
       if (dbMrc == SQLITE_BUSY)
         Sleep(100); // In windows.h
@@ -6530,7 +6532,7 @@ int rawCopy(char *FrmFile, char *TooFile, int binLog)
   /************************************************************/
   /* Search for the File using SQLite                         */
   /************************************************************/
-  dbMQuery = sqlite3_mprintf("Select * FROM FileNames AS T1, MFTFiles AS T2 WHERE T1.FullFileName LIKE '%q' AND T1.MFTRecID=T2.MFTRecID\0", FrmFile);
+  dbMQuery = sqlite3_mprintf("Select * FROM FileNames AS T1, MFTFiles AS T2 WHERE T1.FullFileName LIKE '%q' AND T1.MFTFilesRecID=T2.RecID\0", FrmFile);
 
   dbMrc = sqlite3_prepare(dbMFTHndl, dbMQuery, -1, &dbMFTStmt, 0);
   if (dbMrc == SQLITE_OK)
@@ -7947,14 +7949,6 @@ VOID ReadAttribute(PATTRIBUTE attr, PVOID buffer)
 
   if (attr->Nonresident == FALSE)
   {
-
-
-
-
-printf("Resident File\n");
-
-
-
     rattr = PRESIDENT_ATTRIBUTE(attr);
     memcpy(buffer, Padd(rattr, rattr->ValueOffset), rattr->ValueLength);
   }
@@ -8112,6 +8106,7 @@ int FindActive()
   int Str_Len, Max_Files, Short_Len;
   int Progress, ProgUnit;
   int File_RecNum, Dir_PrevNum, File_RecID;
+  int MFTFiles_RecNum, MFTFiles_RecID;
   int MoreDirs;
   int iLinkCount, iLink, iGotOne;
 
@@ -8421,6 +8416,12 @@ int FindActive()
             strncpy(Full_Fname, (const char *)sqlite3_column_text(dbMFTStmt, dbi), 255);
         }
         else
+        if (_strnicmp(sqlite3_column_name(dbMFTStmt, dbi), "RecID", 5) == 0)
+        {
+          MFTFiles_RecNum = sqlite3_column_int(dbMFTStmt, dbi);
+          MFTFiles_RecID = MFTFiles_RecNum; //Save it for the Built Index
+        }
+        else
         if (_strnicmp(sqlite3_column_name(dbMFTStmt, dbi), "MFTRecID", 8) == 0)
         {
           File_RecNum = sqlite3_column_int(dbMFTStmt, dbi);
@@ -8521,7 +8522,7 @@ int FindActive()
       }
 
       //Now Insert the Full Path FileName and MFT Record ID
-      dbXQuery = sqlite3_mprintf("INSERT INTO FileNames (MFTRecID, FullFileName) VALUES ('%ld', '%q')\0", File_RecID, Full_Fname);
+      dbXQuery = sqlite3_mprintf("INSERT INTO FileNames (MFTRecID, MFTFilesRecID, FullFileName) VALUES ('%ld', '%ld', '%q')\0", File_RecID, MFTFiles_RecID, Full_Fname);
 
       SpinLock = 0;
       while ((dbXrc = sqlite3_exec(dbMFTHndl, dbXQuery, 0, 0, &errmsg)) != SQLITE_OK)
